@@ -1,6 +1,6 @@
 # Implement tracing for task3
 
-## install tempo
+## Install Tempo 
 
 ```sh
 $ helm repo add grafana https://grafana.github.io/helm-charts
@@ -45,11 +45,11 @@ persistence:
 $ helm install tempo grafana/tempo --namespace monitoring --values values.yaml
 ```
 
-## install otel operator 
+## Install OTEL Operator 
 
 cert manager must be installed to use otel operator.
 
-custom values file
+custom values file for the operator
 
 ```yml
 manager:
@@ -76,7 +76,7 @@ $ helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-he
 $ helm install open-telemetry-operator open-telemetry/opentelemetry-operator --namespace monitoring -f values.yaml
 ```
 
-### create otel collector
+### Create OTEL Collector 
 
 ```yml
 apiVersion: opentelemetry.io/v1beta1
@@ -116,10 +116,14 @@ spec:
 $ kubectl apply -f otel-collector.yaml
 ```
 
-## enable auto instrumentation
+## Enable Auto Instrumentation
 
-### instrumentation cr
-we can create `instrumentation` resource to enable auto instrumentation, or use sidecar containers.
+we can enable instrumentation of our services by using one of the ways.
+- enabling auto instrumentation using instrumentation cr and annotations.
+- manually using opentelemetry sdk
+- using sidecar containers directly in our pod spec
+
+### Instrumentation Custom Resource
 
 instrumentation manifest file.
 
@@ -161,7 +165,7 @@ annotations:
 
 Then we can either restart our pods or install if new.
 
-### sidecar
+### Sidecar
 we can add sidecar container to our pods.
 
 ```yml
@@ -182,19 +186,24 @@ we can add sidecar container to our pods.
 
 `shareProcessNamespace: true` should be enabled.
 
-we can now redeploy our helm charts.
+we can now redeploy our helm charts. we should see 2 containers running per pod.
 
-```sh
-NAME                                   READY   STATUS    RESTARTS   AGE
-book-service-deploy-597d69ffdb-vz4mw   2/2     Running   0          3d21h
-user-service-deploy-b469f8766-rgp46    2/2     Running   0          3d21h
-order-service-deploy-7f7897c488-2rspj  2/2     Running   0          3d21h
-```
+## Configure Grafana
 
-## configure grafana
-
-we can them configure grafana to get traces from tempo and view traces of different services.
+we can then configure grafana to get traces from tempo and view traces of different services.
 
 ```sh
 $ kubectl port-forward svc/kube-prometheus-stack-grafana 9000:80 --address 10.0.0.5 -n monitoring
 ```
+
+### Order service
+
+![alt](ss/2026-04-06-124600_805x728_scrot.png)
+
+### User service
+
+![alt](ss/2026-04-06-125000_810x637_scrot.png)
+
+### Book service
+
+![alt](ss/2026-04-06-124934_811x631_scrot.png)
