@@ -49,7 +49,7 @@ $ helm install tempo grafana/tempo --namespace monitoring --values values.yaml
 
 cert manager must be installed to use otel operator.
 
-custom values file for the operator
+custom values for the otel operator 
 
 ```yml
 manager:
@@ -77,6 +77,8 @@ $ helm install open-telemetry-operator open-telemetry/opentelemetry-operator --n
 ```
 
 ### Create OTEL Collector 
+
+Collector will receive telemetry data, process it and send it to our tempo backend.
 
 ```yml
 apiVersion: opentelemetry.io/v1beta1
